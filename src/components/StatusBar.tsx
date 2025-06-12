@@ -1,0 +1,7 @@
+
+export default StatusBar() {
+    return (
+        <>
+        </>
+    )
+}

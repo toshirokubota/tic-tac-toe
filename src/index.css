@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Outfit", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  --color-bluish-green: rgb(49, 195, 189);
+  --color-light-green: rgb(101, 233, 228);
+  --color-dark-orange: rgb(242, 177, 55);
+  --color-light-orange: rgb(255, 200, 96);
+  --color-verydark-navy: rgb(26, 42, 51);
+  --color-dark-navy: rgb(31, 54, 65);
+  --color-medium-silver: rgb(168, 191, 201);
+  --color-light-silver: rgb(219, 232, 237);
+}
+
