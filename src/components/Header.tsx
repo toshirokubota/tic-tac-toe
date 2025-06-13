@@ -1,9 +1,9 @@
 import { staticAsset } from "../libs";
-import type { TurnType } from "../types";
+import type { PlayerType } from "../types";
 
 export default function Header({turn, reset}: 
     {
-        turn: boolean,
+        turn: PlayerType,
         reset: ()=>void
     }) {
     return (
@@ -14,8 +14,7 @@ export default function Header({turn, reset}:
             </div>
             <div>
                 {
-                        turn ? <img src={staticAsset('/images/icon-x.svg')} alt='x-icon' /> :
-                        <img src={staticAsset('/images/icon-o.svg')} alt='x-icon' />
+                    turn ? <img src={staticAsset(turn.image)} alt='current player icon' />: null
                 }
                 <span>TURN</span>
             </div>
