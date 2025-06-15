@@ -4,7 +4,7 @@ import { staticAsset } from "../libs";
 export function Tile({setTiles, tile, turn}:
     {
         tile: TileType,
-        turn: PlayerType | null,
+        turn: PlayerType,
         setTiles: React.Dispatch<React.SetStateAction<TileType[]>>,
     }
 ) {

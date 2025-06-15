@@ -26,7 +26,6 @@ header .player-icons {
 }
 header img {
   display: inline-block;
-  width: 2rem;
 }
 header .turn {
   justify-self: center;

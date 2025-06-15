@@ -54,3 +54,43 @@ export function nextIntelligentMove(tiles: TileType[], me: PlayerType, opponent:
     console.log('next move randomly: ', tiles);
     return tiles[4].state === undefined ? tiles[4]: nextRandomMove(tiles);
 }
+
+export const customStringify = (players: PlayerType[], tiles: TileType[], 
+    turn: PlayerType, winner: PlayerType| null, 
+    started: boolean, ended: boolean, isInitialRender: boolean, reset: boolean) => {
+    console.log('customStringify()');
+    const tilesNew = [];
+    for(let i=0; i<tiles.length; ++i) {
+        const tile = tiles[i];
+        if(tile.state === players[0]) {
+            tilesNew.push({id: tile.id, state: 0});
+        } else if(tile.state === players[1]) {
+            tilesNew.push({id: tile.id, state: 1});
+        } else {
+            tilesNew.push({id: tile.id, state: -1});
+        }
+    }
+    const turnNew = turn == players[0] ? 0 : 1;
+    const winnerNew = winner ? (winner == players[0] ? 0: 1): -1;
+    const obj = {players: players, tiles: tilesNew, turn: turnNew, winner: winnerNew, 
+        started: started, ended: ended, isInitialRender: isInitialRender, reset: reset};
+    return JSON.stringify(obj);
+}
+export const customParse = (str: string) => {
+    const parsed = JSON.parse(str);
+    console.log('customParse: ', parsed);
+    const players: PlayerType[] = parsed.players;
+    const turn: PlayerType = parsed.turn === 0 ? players[0]: players[1];
+    const winner: PlayerType | null = parsed.winner >= 0 ? players[parsed.winner]: null;
+    const tiles: TileType[] = [];
+    for(const tile of parsed.tiles) {
+        if(tile.state >= 0) {
+            tiles.push({id: tile.id, state: players[tile.state]})
+        } else {
+            tiles.push({id: tile.id, state: undefined})
+        }
+    }
+    return {players, tiles, turn, winner, 
+        started: parsed.started, ended: parsed.ended, 
+        isInitialRender: parsed.isInitialRender, reset: parsed.reset};
+}
