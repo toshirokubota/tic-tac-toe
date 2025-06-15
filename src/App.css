@@ -2,6 +2,7 @@ body {
   width: 100%;
   height: 100vh;
   background-color: var(--color-verydark-navy);
+  color: var(--color-medium-silver);
 }
 
 #root {
@@ -42,4 +43,116 @@ header button {
   place-content: center;
   background-color: var(--color-dark-navy);
   box-shadow: inset 0 -5px 0 black;
+}
+
+.status-bar .x-status, .status-bar .o-status, .status-bar .tie-status {
+  width: 6rem;
+  display: grid;
+  place-content: center;
+  color: var(--color-verydark-navy);
+}
+.status-bar .x-status {
+  background-color: var(--color-bluish-green);
+}
+.status-bar .tie-status {
+  background-color: var(--color-medium-silver);
+}
+.status-bar .o-status {
+  background-color: var(--color-light-orange);
+}
+
+.start-form {
+  margin: 1rem;
+}
+.start-form div {
+  background-color: var(--color-dark-navy);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+.start-form .radio-group {
+  background-color: var(--color-verydark-navy);
+  padding: 0.5rem;
+  display: flex;
+}
+.start-form .radio-group label {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 0.75rem;
+}
+.start-form .radio-group label:has(input:checked) {
+  background-color: var(--color-medium-silver);
+}
+.start-form .radio-group input {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.start-form .radio-group input[type=radio]:checked + svg {
+  fill: var(--color-verydark-navy);
+}
+.start-form .radio-group svg {
+  margin-inline: auto;
+  fill: var(--color-medium-silver);
+  transform: scale(0.5);
+}
+.start-form button.start-vs-cpu {
+  background-color: var(--color-dark-orange);
+  color: var(--color-dark-navy);
+  width: calc(100% - 4rem);
+  margin: 1rem 2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+.start-form button.start-vs-human {
+  background-color: var(--color-bluish-green);
+  color: var(--color-dark-navy);
+  width: calc(100% - 4rem);
+  margin: 1rem 2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.modal-bg {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.modal-fg {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translate(0, -50%);
+  background-color: var(--color-dark-navy);
+}
+.modal-fg h1 {
+  text-transform: capitalize;
+  font-size: 1.5rem;
+}
+.modal-fg h1 img {
+  width: 1.5rem;
+  display: inline-block;
+}
+.modal-fg p {
+  text-transform: capitalize;
+}
+
+.silver-button {
+  background-color: var(--color-medium-silver);
+  color: var(--color-verydark-navy);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.orange-button {
+  background-color: var(--color-dark-orange);
+  color: var(--color-verydark-navy);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
 }/*# sourceMappingURL=App.css.map */

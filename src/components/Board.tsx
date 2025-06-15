@@ -4,7 +4,7 @@ import type { PlayerType, TileType } from "../types";
 export default function Board({tiles, setTiles, turn}:
     {
         tiles: TileType[],
-        turn: PlayerType,
+        turn: PlayerType | null,
         setTiles: React.Dispatch<React.SetStateAction<TileType[]>>
     } 
 ) {

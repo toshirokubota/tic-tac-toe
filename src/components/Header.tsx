@@ -3,7 +3,7 @@ import type { PlayerType } from "../types";
 
 export default function Header({turn, reset}: 
     {
-        turn: PlayerType,
+        turn: PlayerType | null,
         reset: ()=>void
     }) {
     return (

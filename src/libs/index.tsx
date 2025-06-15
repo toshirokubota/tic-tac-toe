@@ -51,5 +51,6 @@ export function nextIntelligentMove(tiles: TileType[], me: PlayerType, opponent:
             if(isCrucial(tiles, i, opponent)) return tile;
         }
     }
+    console.log('next move randomly: ', tiles);
     return tiles[4].state === undefined ? tiles[4]: nextRandomMove(tiles);
 }
