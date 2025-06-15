@@ -7,6 +7,7 @@ import { checkForWinBy, nextIntelligentMove } from './libs';
 import StatusBar from './components/StatusBar';
 import InitialSetup from './components/InitialSetup';
 import EndGame from './components/EndGame';
+import ResetGame from './components/ResetGame';
 
 function App() {
   const [tiles, setTiles] = useState<TileType[]>(
@@ -18,7 +19,9 @@ function App() {
   const [turn, setTurn] = useState<PlayerType | null>(null);
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
   const [winner, setWinner] = useState<PlayerType | null>(null);
+  const [reset, setReset] = useState<boolean>(false);
 
+  //FSM for the game
   useEffect(() => {
     if(isInitialRender) {
       console.log('setting initial-render to false')
@@ -32,7 +35,7 @@ function App() {
       setEnded(true);
     } else if(checkForWinBy(tiles, players[1])) {
       console.log('Second Win!!!');
-      setWinner(players[0]);
+      setWinner(players[1]);
       setPlayers(prev => [{...prev[0]}, {...prev[1], wins: prev[1].wins + 1}]);
       setEnded(true);
     } else if(tiles.reduce((acc, curr) => acc + (curr.state === undefined ? 1: 0), 0) === 0) {
@@ -44,6 +47,7 @@ function App() {
     }
   }, [tiles]);
   
+  //CPU's play
   useEffect(()=> {
     console.log('Turn change. ', turn, started);
     if(turn?.cpu) {
@@ -57,11 +61,9 @@ function App() {
     }
   }, [turn]);
 
+  //Start of the game
   useEffect(()=>{
     if(!ended && players.length == 2) {
-      //restartGame();
-      //setTurn(players[0]);
-      //setEnded(false);
       setTiles(new Array(9).fill(null).map((_a,i) => ({state: undefined, id: i})));
       setIsInitialRender(true);
       setStarted(true);
@@ -89,8 +91,12 @@ function App() {
           ended &&
           <EndGame players={players} winner={winner} quit={()=>{setEnded(false); setStarted(false)}} restart={restartGame}/>
         }
+        {
+          reset && 
+          <ResetGame cancel={()=>setReset(false)} restart={()=>{setReset(false); restartGame()}} />
+        }
         <>
-          <Header turn={turn} reset={restartGame}/>
+          <Header turn={turn} reset={()=>setReset(true)}/>
           <main>
             <Board tiles={tiles} setTiles={setTiles} turn={turn}/>
             <StatusBar players={players} />

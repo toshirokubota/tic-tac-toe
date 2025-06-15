@@ -27,17 +27,17 @@ export default function InitialSetup({setPlayers}:
        }
 
     return (
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full my-16">
             <div className="flex justify-center">
                 <img src={staticAsset('/images/icon-x.svg')} alt='x-icon' className="w-8"/>
                 <img src={staticAsset('/images/icon-o.svg')} alt='o-icon' className="w-8"/>
              </div>
              <form className='start-form'>
-                <div className='flex flex-col justify-center'>
-                    <fieldset>
+                <div className='flex flex-col justify-center my-8'>
+                    <fieldset className="my-4">
                         <legend>PICK PLAYER 1'S MARK</legend>
                     </fieldset>
-                    <div className="radio-group">
+                    <div className="radio-group my-4">
                         <label htmlFor="player-mark-x">
                             <input type='radio' id='player-mark-x' name='player-mark' value='x'
                                 onChange={handleChange}/>
@@ -53,13 +53,13 @@ export default function InitialSetup({setPlayers}:
                             </svg>
                         </label>                        
                     </div>
-                    <p>REMEMBER: X GOES FIRST</p>
+                    <p className="my-4">REMEMBER: X GOES FIRST</p>
                 </div>
                 <button onClick={(e)=>{e.preventDefault(); initializeAndStart(true)}}
-                    className='start-vs-cpu'>
+                    className='start-vs-cpu my-2'>
                         NEW GAME (VS. CPU)</button>
                 <button onClick={(e)=>{e.preventDefault(); initializeAndStart(false)}}
-                    className='start-vs-human'>
+                    className='start-vs-human my-2'>
                         NEW GAME (VS. PLAYER)</button>
              </form>
         </div>

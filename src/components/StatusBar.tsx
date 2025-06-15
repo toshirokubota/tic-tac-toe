@@ -10,15 +10,15 @@ export default function StatusBar({players}:
         <div className="status-bar flex justify-around items-center gap-4">
             <div className='x-status'>
                 <p>X ({xlabel}) </p>
-                <p>{players[0].wins}</p>
+                <p className="font-bold text-xl">{players[0].wins}</p>
             </div>
             <div className='tie-status'>
                 <p>TIES</p>
-                <p>{players[0].ties}</p>
+                <p className="font-bold text-xl">{players[0].ties}</p>
             </div>
             <div className='o-status'>
                 <p>O ({olabel})</p>
-                <p>{players[1].wins}</p>
+                <p className="font-bold text-xl">{players[1].wins}</p>
             </div>
         </div>
     )
