@@ -23,7 +23,8 @@ export default function EndGame({winner, players, restart, quit}:
                 if(winnerIdx === 0) return 'PLAYER 1 WINS!'
                 else return 'PLAYER 2 WINS!'
             }
-        } else return '';
+        } 
+        return '';
     }
     return (
         <div className="modal-bg">

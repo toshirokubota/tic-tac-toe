@@ -2,9 +2,10 @@ import { useState } from "react";
 import { staticAsset } from "../libs";
 import { imageNames, type PlayerType } from "../types";
 
-export default function InitialSetup({setPlayers}: 
+export default function InitialSetup({setPlayers, start}: 
     {
-        setPlayers: React.Dispatch<React.SetStateAction<PlayerType[]>>
+        setPlayers: React.Dispatch<React.SetStateAction<PlayerType[]>>,
+        start: ()=>void
     }) {
         const [icon, setIcon] = useState<string>('x');
         const handleChange = (event: React.ChangeEvent) => {
@@ -24,6 +25,7 @@ export default function InitialSetup({setPlayers}:
                     {image: imageNames[1], cpu: false, you: true, wins: 0, ties: 0 },
                     ])
             }
+            start();
        }
 
     return (

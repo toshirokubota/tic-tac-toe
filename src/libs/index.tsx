@@ -5,7 +5,8 @@ export function staticAsset(assetName: string): string {
 }
 
 function threeTileMatchBy(a: TileType, b: TileType, c: TileType, player: PlayerType): boolean {
-    return player !== undefined && a.state === player && b.state === player && c.state === player;
+    return player !== undefined && a.state?.image === player.image && 
+        b.state?.image === player.image && c.state?.image === player.image;
 }
 
 export function checkForWinBy(tiles: TileType[], player: PlayerType): boolean {
@@ -57,23 +58,22 @@ export function nextIntelligentMove(tiles: TileType[], me: PlayerType, opponent:
 
 export const customStringify = (players: PlayerType[], tiles: TileType[], 
     turn: PlayerType, winner: PlayerType| null, 
-    started: boolean, ended: boolean, isInitialRender: boolean, reset: boolean) => {
-    console.log('customStringify()');
+    initialized: boolean, ended: boolean, numPlays: number, reset: boolean) => {
     const tilesNew = [];
-    for(let i=0; i<tiles.length; ++i) {
-        const tile = tiles[i];
-        if(tile.state === players[0]) {
+    for(const tile of tiles) {
+        if(tile.state?.image === players[0].image) {
             tilesNew.push({id: tile.id, state: 0});
-        } else if(tile.state === players[1]) {
+        } else if(tile.state?.image === players[1].image) {
             tilesNew.push({id: tile.id, state: 1});
         } else {
             tilesNew.push({id: tile.id, state: -1});
         }
     }
-    const turnNew = turn == players[0] ? 0 : 1;
-    const winnerNew = winner ? (winner == players[0] ? 0: 1): -1;
+    const turnNew = turn.image == players[0].image ? 0 : 1;
+    const winnerNew = winner ? (winner.image == players[0].image ? 0: 1): -1;
     const obj = {players: players, tiles: tilesNew, turn: turnNew, winner: winnerNew, 
-        started: started, ended: ended, isInitialRender: isInitialRender, reset: reset};
+        initialized: initialized, ended: ended, numPlays: numPlays, reset: reset};
+    console.log('customStringify()', tiles, tilesNew);
     return JSON.stringify(obj);
 }
 export const customParse = (str: string) => {
@@ -91,6 +91,6 @@ export const customParse = (str: string) => {
         }
     }
     return {players, tiles, turn, winner, 
-        started: parsed.started, ended: parsed.ended, 
-        isInitialRender: parsed.isInitialRender, reset: parsed.reset};
+        initialized: parsed.initialized, ended: parsed.ended, 
+        numPlays: parsed.numPlays, reset: parsed.reset};
 }

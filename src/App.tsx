@@ -10,20 +10,26 @@ import EndGame from './components/EndGame';
 import ResetGame from './components/ResetGame';
 
 function App() {
-  const [tiles, setTiles] = useState<TileType[]>(
+  const [tiles, setTiles] = useState<TileType[]>(()=>
     (new Array(9).fill(null)).map((_a,i) => ({state: undefined, id: i}))
   );
-  const [players, setPlayers] = useState<PlayerType[]>([
+  const [players, setPlayers] = useState<PlayerType[]>(()=>[
         {image: imageNames[0], cpu: false, you: true, wins: 0, ties: 0 },
         {image: imageNames[1], cpu: true, you: false, wins: 0, ties: 0 },
   ]);
   const [turn, setTurn] = useState<PlayerType>(players[0]);
-  const [started, setStarted] = useState<boolean>(false);
+  const [initialized, setInitialized] = useState<boolean>(false);
   const [ended, setEnded] = useState<boolean>(false);
-  const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
+  const [numPlays, setNumPlays] = useState<number>(0);
   const [winner, setWinner] = useState<PlayerType | null>(null);
   const [reset, setReset] = useState<boolean>(false);
   const gameStorageKey = 'tic-tac-toe-tiles';
+
+  const handleUnload = () => {
+    console.log('unmounting the app.', initialized, tiles);
+    // localStorage.setItem(gameStorageKey, 
+    //   customStringify(players, tiles, turn, winner, initialized, ended, numPlays, reset));
+  }
 
   //Load the game state if exists
   useEffect(()=>{
@@ -34,48 +40,45 @@ function App() {
       setTiles(obj.tiles);
       setTurn(obj.turn);
       setWinner(obj.winner);
-      setStarted(obj.started);
+      setInitialized(true); //obj.initialized);
       setEnded(obj.ended);
-      setIsInitialRender(obj.isInitialRender);
+      setNumPlays(obj.numPlays);
       setReset(obj.reset);
       console.log('loaded game state from the storage.', obj);
+      //localStorage.removeItem(gameStorageKey);
     }
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => window.removeEventListener('beforeunload', handleUnload);
   }, []);
 
   //FSM for the game
   useEffect(() => {
-    if(isInitialRender) {
-      console.log('setting initial-render to false')
-      setIsInitialRender(false);
-      setTurn(players[0]);
-      setWinner(null);
-      localStorage.setItem(gameStorageKey, customStringify(players, tiles, turn, winner, started, ended, isInitialRender, reset))
-    } else if(checkForWinBy(tiles, players[0])) {
+    const n = tiles.reduce((acc,curr) => curr.state != undefined ? acc + 1: acc, 0);
+    if(checkForWinBy(tiles, players[0])) {
       console.log('First Win!!!');
       setWinner(players[0]);
       setPlayers(prev => [{...prev[0], wins: prev[0].wins + 1}, {...prev[1]}]);
       setEnded(true);
-      localStorage.removeItem(gameStorageKey);
     } else if(checkForWinBy(tiles, players[1])) {
       console.log('Second Win!!!');
       setWinner(players[1]);
       setPlayers(prev => [{...prev[0]}, {...prev[1], wins: prev[1].wins + 1}]);
       setEnded(true);
-      localStorage.removeItem(gameStorageKey);
-    } else if(tiles.reduce((acc, curr) => acc + (curr.state === undefined ? 1: 0), 0) === 0) {
-      setPlayers(prev => [{...prev[0], ties: prev[0].ties + 1}, {...prev[1], ties: prev[1].ties + 1}]);
+    } else if(n === 9) {
       console.log("It's a tie!!!");
+      setPlayers(prev => [{...prev[0], ties: prev[0].ties + 1}, {...prev[1], ties: prev[1].ties + 1}]);
+      setWinner(null);
       setEnded(true);
-      localStorage.removeItem(gameStorageKey);
-    } else {
-      switchTurn();
-    localStorage.setItem(gameStorageKey, customStringify(players, tiles, turn, winner, started, ended, isInitialRender, reset))
-    }
+    } 
+    setNumPlays(n);
+    console.log('Effect - Tiles: ', tiles, initialized, n);
+
   }, [tiles]);
   
   //CPU's play
   useEffect(()=> {
-    console.log('Turn change. ', turn, started);
+    console.log('Turn change. ', turn, initialized);
     if(turn?.cpu) {
       const opponent = turn === players[0] ? players[1]: players[0];
       const pick = nextIntelligentMove(tiles, turn, opponent);
@@ -85,39 +88,50 @@ function App() {
           {...tile, state: turn}): tile));
       }
     }
-    localStorage.setItem(gameStorageKey, customStringify(players, tiles, turn, winner, started, ended, isInitialRender, reset))
   }, [turn]);
 
-  //Start of the game
+  //Switch a player after a tile being selected.
   useEffect(()=>{
-    if(!ended && players.length == 2) {
-      //setTiles(new Array(9).fill(null).map((_a,i) => ({state: undefined, id: i})));
-      setIsInitialRender(true);
-      setStarted(true);
-      console.log('Initial players: ', [{...players[0]}, {...players[1]}]);
+    if(numPlays > 0) {
+      console.log('Switch players. ', turn, numPlays);
+      switchTurn();
     }
-    localStorage.setItem(gameStorageKey, customStringify(players, tiles, turn, winner, started, ended, isInitialRender, reset))
-  }, [players])
+  }, [numPlays]);
+
+  useEffect(()=>{
+    console.log('store the current state. Turn = ', turn);
+    localStorage.setItem(gameStorageKey, 
+        customStringify(players, tiles, turn, winner, initialized, ended, numPlays, reset));
+  },[players, tiles, turn, winner, initialized, ended, numPlays, reset]);
+
+  // //Start of the game
+  // useEffect(()=>{
+  //   if(!ended && players.length == 2) {
+  //     setStarted(true);
+  //     console.log('Initial players: ', [{...players[0]}, {...players[1]}]);
+  //   }
+  // }, [players])
 
   const restartGame = () => {
     console.log('restartGame: ', players);
     setTiles(new Array(9).fill(null).map((_a,i) => ({state: undefined, id: i})));
-    setIsInitialRender(true);
+    setTurn(players[0]);
     setEnded(false);
   }
   const switchTurn = () => {
-    console.log('switchTurn: ', 'from Player ', turn, 'to Player ', (turn === players[0] ? players[1]: players[0]))
-    setTurn((prev)=> prev === players[0] ? players[1]: players[0]);
+    console.log('switchTurn: ', 'from Player ', turn, 'to Player ', (turn.image === players[0].image ? players[1]: players[0]))
+    setTurn((prev)=> prev.image === players[0].image ? players[1]: players[0]);
   }
 
   return (
     <>
     {
-      started ?
+      initialized ?
       <>
         {
           ended &&
-          <EndGame players={players} winner={winner} quit={()=>{setEnded(false); setStarted(false)}} restart={restartGame}/>
+          <EndGame players={players} winner={winner} 
+                  quit={()=>{setEnded(false); setInitialized(false)}} restart={restartGame}/>
         }
         {
           reset && 
@@ -132,7 +146,7 @@ function App() {
         </>
       </>
       :
-      <InitialSetup setPlayers={setPlayers}/>
+      <InitialSetup setPlayers={setPlayers} start={()=>{setInitialized(true); restartGame();}}/>
     }
     </>
   )
