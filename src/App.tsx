@@ -32,28 +32,28 @@ function App() {
   }
 
   //Load the game state if exists
-  useEffect(()=>{
-    const item = localStorage.getItem(gameStorageKey);
-    if(item) {
-      const obj = customParse(item)
-      setPlayers(obj.players);
-      setTiles(obj.tiles);
-      setTurn(obj.turn);
-      setWinner(obj.winner);
-      setInitialized(true); //obj.initialized);
-      setEnded(obj.ended);
-      setReset(obj.reset);
-      console.log('loaded game state from the storage.', obj);
-      //localStorage.removeItem(gameStorageKey);
-    }
+  // useEffect(()=>{
+  //   const item = localStorage.getItem(gameStorageKey);
+  //   if(item) {
+  //     const obj = customParse(item)
+  //     setPlayers(obj.players);
+  //     setTiles(obj.tiles);
+  //     setTurn(obj.turn);
+  //     setWinner(obj.winner);
+  //     setInitialized(true); //obj.initialized);
+  //     setEnded(obj.ended);
+  //     setReset(obj.reset);
+  //     console.log('loaded game state from the storage.', obj);
+  //     //localStorage.removeItem(gameStorageKey);
+  //   }
 
-    window.addEventListener('beforeunload', handleUnload);
-    return () => window.removeEventListener('beforeunload', handleUnload);
-  }, []);
+  //   window.addEventListener('beforeunload', handleUnload);
+  //   return () => window.removeEventListener('beforeunload', handleUnload);
+  // }, []);
 
   //FSM for the game
   useEffect(() => {
-    console.log('Effect - Played Before: ', tiles, initialized, played);
+    console.log('Effect - Played Before: ', tiles, players, initialized, played, winner);
     if(played) {
       if(checkForWinBy(tiles, players[0])) {
         console.log('First Win!!!');
@@ -81,27 +81,41 @@ function App() {
       console.log('store the current state. Tiles = ', tiles);
       localStorage.setItem(gameStorageKey, 
           customStringify(players, tiles, turn, winner, initialized, ended, reset));
-    } 
-    console.log('Effect - Played After: ', tiles, initialized, played);
+    } else {
+      console.log('Turn change. Possible CPU play:', turn, initialized, played);
+      if(turn?.cpu && !winner) {
+        const opponent = turn === players[0] ? players[1]: players[0];
+        const pick = nextIntelligentMove(tiles, turn, opponent);
+        console.log('next computer move: ', pick, tiles);
+        if(pick) {
+          setTiles(prev => prev.map(tile => tile === pick ? (
+            {...tile, state: turn}): tile));
+          setPlayed(true);
+        }
+      }
+      localStorage.setItem(gameStorageKey, 
+          customStringify(players, tiles, turn, winner, initialized, ended, reset));
+    }
+    console.log('Effect - Played After: ', tiles, players, initialized, played, winner);
 
-  }, [played]);
+  }, [played, players]);
   
   //CPU's play
-  useEffect(()=> {
-    console.log('Turn change. Possible CPU play:', turn, initialized, played);
-    if(turn?.cpu) {
-      const opponent = turn === players[0] ? players[1]: players[0];
-      const pick = nextIntelligentMove(tiles, turn, opponent);
-      console.log('next computer move: ', pick, tiles);
-      if(pick) {
-        setTiles(prev => prev.map(tile => tile === pick ? (
-          {...tile, state: turn}): tile));
-        setPlayed(true);
-      }
-    }
-    localStorage.setItem(gameStorageKey, 
-        customStringify(players, tiles, turn, winner, initialized, ended, reset));
-  }, [turn]);
+  // useEffect(()=> {
+  //   console.log('Turn change. Possible CPU play:', turn, initialized, played);
+  //   if(turn?.cpu) {
+  //     const opponent = turn === players[0] ? players[1]: players[0];
+  //     const pick = nextIntelligentMove(tiles, turn, opponent);
+  //     console.log('next computer move: ', pick, tiles);
+  //     if(pick) {
+  //       setTiles(prev => prev.map(tile => tile === pick ? (
+  //         {...tile, state: turn}): tile));
+  //       setPlayed(true);
+  //     }
+  //   }
+  //   localStorage.setItem(gameStorageKey, 
+  //       customStringify(players, tiles, turn, winner, initialized, ended, reset));
+  // }, [turn]);
 
   // useEffect(()=>{
   //   console.log('store the current state. Tiles = ', tiles);
@@ -111,9 +125,10 @@ function App() {
 
   const restartGame = () => {
     console.log('restartGame: ', players);
-    setTiles(new Array(9).fill(null).map((_a,i) => ({state: undefined, id: 100 + i})));
+    setTiles(new Array(9).fill(null).map((_a,i) => ({state: undefined, id: i})));
     setTurn(players[0]);
     setEnded(false);
+    setWinner(null);
   }
   const switchTurn = () => {
     console.log('switchTurn: ', 'from Player ', turn, 'to Player ', (turn.image === players[0].image ? players[1]: players[0]))
