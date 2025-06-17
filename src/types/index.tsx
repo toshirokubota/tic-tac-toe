@@ -1,7 +1,6 @@
 
-// export type TurnType = 'First' | 'Second';
-//export type TileState = TurnType | undefined;
 
+export type GamePhase = 'Setup' | 'Thinking1' | 'Played1' | 'Thinking2' | 'Played2' | 'Over' | 'Restart' | 'Idle';
 export const imageNames: string[] = ['/images/icon-x.svg', '/images/icon-o.svg'];
 export type PlayerType = {
     image: string,
@@ -11,7 +10,7 @@ export type PlayerType = {
     ties: number
 }
 export type TileType = {
-    state: PlayerType | undefined;
+    state: number;
     id: number;
 }
 

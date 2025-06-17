@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css'
 import Board from './components/Board'
 import Header from './components/Header'
-import { type TileType, type PlayerType, imageNames } from './types';
+import { type TileType, type PlayerType, imageNames, type GamePhase } from './types';
 import { checkForWinBy, customParse, customStringify, nextIntelligentMove } from './libs';
 import StatusBar from './components/StatusBar';
 import InitialSetup from './components/InitialSetup';
@@ -10,156 +10,129 @@ import EndGame from './components/EndGame';
 import ResetGame from './components/ResetGame';
 
 function App() {
-  const [tiles, setTiles] = useState<TileType[]>(()=>
-    (new Array(9).fill(null)).map((_a,i) => ({state: undefined, id: i}))
+  const [tiles, setTiles] = useState<TileType[]>(
+    (new Array(9).fill(null)).map((_a,i) => ({state: -1, id: i}))
   );
-  const [players, setPlayers] = useState<PlayerType[]>(()=>[
-        {image: imageNames[0], cpu: false, you: true, wins: 0, ties: 0 },
-        {image: imageNames[1], cpu: true, you: false, wins: 0, ties: 0 },
-  ]);
-  const [turn, setTurn] = useState<PlayerType>(players[0]);
-  const [played, setPlayed] = useState<boolean>(false);
-  const [initialized, setInitialized] = useState<boolean>(false);
-  const [ended, setEnded] = useState<boolean>(false);
-  const [winner, setWinner] = useState<PlayerType | null>(null);
-  const [reset, setReset] = useState<boolean>(false);
+  const [players, setPlayers] = useState<PlayerType[]>([]);
+  const [turn, setTurn] = useState<number>(-1);
+  const [phase, setPhase] = useState<GamePhase>("Idle");
+  const [winner, setWinner] = useState<number>(-1);
   const gameStorageKey = 'tic-tac-toe-tiles';
-
-  const handleUnload = () => {
-    console.log('unmounting the app.', initialized, tiles);
-    // localStorage.setItem(gameStorageKey, 
-    //   customStringify(players, tiles, turn, winner, initialized, ended, numPlays, reset));
-  }
-
-  //Load the game state if exists
-  // useEffect(()=>{
-  //   const item = localStorage.getItem(gameStorageKey);
-  //   if(item) {
-  //     const obj = customParse(item)
-  //     setPlayers(obj.players);
-  //     setTiles(obj.tiles);
-  //     setTurn(obj.turn);
-  //     setWinner(obj.winner);
-  //     setInitialized(true); //obj.initialized);
-  //     setEnded(obj.ended);
-  //     setReset(obj.reset);
-  //     console.log('loaded game state from the storage.', obj);
-  //     //localStorage.removeItem(gameStorageKey);
-  //   }
-
-  //   window.addEventListener('beforeunload', handleUnload);
-  //   return () => window.removeEventListener('beforeunload', handleUnload);
-  // }, []);
 
   //FSM for the game
   useEffect(() => {
-    console.log('Effect - Played Before: ', tiles, players, initialized, played, winner);
-    if(played) {
-      if(checkForWinBy(tiles, players[0])) {
+    console.log('Effect - Before: ', tiles, players, phase, turn, winner);
+    if(phase === 'Idle') {
+      const item = localStorage.getItem(gameStorageKey);
+      if(item) {
+        const obj = customParse(item)
+        setPlayers(obj.players);
+        setTiles(obj.tiles);
+        setTurn(obj.turn);
+        setWinner(obj.winner);
+        setPhase(obj.phase);
+        console.log('loaded game state from the storage.', obj);
+        //localStorage.removeItem(gameStorageKey);
+      } else {
+        setPhase('Setup');
+      }
+    } else if(phase === 'Restart'){
+      restartGame();
+    } else if(phase === 'Played1' || phase === 'Played2') {
+      if(checkForWinBy(tiles, 0)) {
         console.log('First Win!!!');
-        setWinner(players[0]);
+        setWinner(0);
         setPlayers(prev => [{...prev[0], wins: prev[0].wins + 1}, {...prev[1]}]);
-        setEnded(true);
-      } else if(checkForWinBy(tiles, players[1])) {
+        setPhase('Over');
+      } else if(checkForWinBy(tiles, 1)) {
         console.log('Second Win!!!');
-        setWinner(players[1]);
+        setWinner(1);
         setPlayers(prev => [{...prev[0]}, {...prev[1], wins: prev[1].wins + 1}]);
-        setEnded(true);
-      } else if(tiles.reduce((acc,curr)=> curr.state == undefined ? acc: acc + 1, 0) === 9) {
+        setPhase('Over');
+      } else if(tiles.reduce((acc,curr)=> curr.state < 0 ? acc: acc + 1, 0) === 9) {
         console.log("It's a tie!!!");
         setPlayers(prev => [{...prev[0], ties: prev[0].ties + 1}, {...prev[1], ties: prev[1].ties + 1}]);
-        setWinner(null);
-        setEnded(true);
+        setWinner(-1);
+        setPhase('Over');
       } else {
         console.log('Play continue...');
+        switchTurn();
       }
-
-      setPlayed(false);
-      //console.log('Switch players. ', turn);
-      switchTurn();
-
       console.log('store the current state. Tiles = ', tiles);
       localStorage.setItem(gameStorageKey, 
-          customStringify(players, tiles, turn, winner, initialized, ended, reset));
-    } else {
-      console.log('Turn change. Possible CPU play:', turn, initialized, played);
-      if(turn?.cpu && !winner) {
-        const opponent = turn === players[0] ? players[1]: players[0];
+          customStringify(players, tiles, turn, winner, phase));
+    } else if(phase==='Thinking1' || phase === 'Thinking2') {
+      console.log('Turn change. Possible CPU play:', turn, phase);
+      if(players[turn].cpu) {
+        const opponent = turn === 0 ? 1: 0;
         const pick = nextIntelligentMove(tiles, turn, opponent);
         console.log('next computer move: ', pick, tiles);
         if(pick) {
           setTiles(prev => prev.map(tile => tile === pick ? (
             {...tile, state: turn}): tile));
-          setPlayed(true);
+          movePhase();
         }
       }
+      console.log('store the current state. Tiles = ', tiles);
       localStorage.setItem(gameStorageKey, 
-          customStringify(players, tiles, turn, winner, initialized, ended, reset));
+          customStringify(players, tiles, turn, winner, phase));
     }
-    console.log('Effect - Played After: ', tiles, players, initialized, played, winner);
+    console.log('Effect - After: ', tiles, players, phase, turn, winner);
 
-  }, [played, players]);
+  }, [phase]);
   
-  //CPU's play
-  // useEffect(()=> {
-  //   console.log('Turn change. Possible CPU play:', turn, initialized, played);
-  //   if(turn?.cpu) {
-  //     const opponent = turn === players[0] ? players[1]: players[0];
-  //     const pick = nextIntelligentMove(tiles, turn, opponent);
-  //     console.log('next computer move: ', pick, tiles);
-  //     if(pick) {
-  //       setTiles(prev => prev.map(tile => tile === pick ? (
-  //         {...tile, state: turn}): tile));
-  //       setPlayed(true);
-  //     }
-  //   }
-  //   localStorage.setItem(gameStorageKey, 
-  //       customStringify(players, tiles, turn, winner, initialized, ended, reset));
-  // }, [turn]);
-
-  // useEffect(()=>{
-  //   console.log('store the current state. Tiles = ', tiles);
-  //   localStorage.setItem(gameStorageKey, 
-  //       customStringify(players, tiles, turn, winner, initialized, ended, reset));
-  // },[players, tiles, turn, winner, initialized, ended, reset]);
-
   const restartGame = () => {
     console.log('restartGame: ', players);
-    setTiles(new Array(9).fill(null).map((_a,i) => ({state: undefined, id: i})));
-    setTurn(players[0]);
-    setEnded(false);
-    setWinner(null);
+    setTiles(new Array(9).fill(null).map((_a,i) => ({state: -1, id: i})));
+    setTurn(0);
+    setWinner(-1);
+    setPhase('Thinking1')
   }
   const switchTurn = () => {
-    console.log('switchTurn: ', 'from Player ', turn, 'to Player ', (turn.image === players[0].image ? players[1]: players[0]))
-    setTurn((prev)=> prev.image === players[0].image ? players[1]: players[0]);
+    console.log('switchTurn: ', 'from Player ', turn, 'to Player ', (turn === 0 ? 1: 0))
+    if(phase === 'Played1') {
+      setTurn(1);
+      setPhase('Thinking2');
+    } else if(phase === 'Played2') {
+      setTurn(0);
+      setPhase('Thinking1');
+    } else {
+      console.log("switchTurn: invoked at a wrong phase.", phase);
+    }
   }
+  const movePhase = () => {
+    if(phase === 'Thinking1') setPhase('Played1');
+    else if(phase === 'Thinking2') setPhase('Played2');
+    else console.log("movePhase: invoked at a wrong phase.", phase);
+  } 
 
   return (
     <>
-    {
-      initialized ?
       <>
         {
-          ended &&
+          phase === 'Over' &&
           <EndGame players={players} winner={winner} 
-                  quit={()=>{setEnded(false); setInitialized(false)}} restart={restartGame}/>
+                  quit={()=>{setPhase('Setup')}} restart={()=>setPhase('Restart')}/>
         }
         {
-          reset && 
-          <ResetGame cancel={()=>setReset(false)} restart={()=>{setReset(false); restartGame()}} />
+          phase === 'Restart' && 
+          <ResetGame cancel={()=>setPhase(turn == 0 ? 'Thinking1': 'Thinking2')} restart={()=>setPhase('Restart')} />
         }
-        <>
-          <Header turn={turn} reset={()=>setReset(true)}/>
-          <main>
-            <Board tiles={tiles} setTiles={setTiles} turn={turn} setPlayed={setPlayed}/>
-            <StatusBar players={players} />
-          </main>
-        </>
+        {
+          phase === 'Setup' && 
+          <InitialSetup setPlayers={setPlayers} start={()=>setPhase('Restart')}/>
+        }
+        {
+          phase !== 'Setup' &&
+          <>
+            <Header turn={turn} reset={()=>setPhase('Restart')}/>
+            <main>
+              <Board tiles={tiles} setTiles={setTiles} turn={turn} movePhase={movePhase}/>
+              {players.length == 2 && <StatusBar players={players} />}
+            </main>
+          </>
+        }
       </>
-      :
-      <InitialSetup setPlayers={setPlayers} start={()=>{setInitialized(true); restartGame();}}/>
-    }
     </>
   )
 }

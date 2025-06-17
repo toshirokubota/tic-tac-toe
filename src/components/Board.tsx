@@ -1,19 +1,19 @@
 import { Tile } from "./Tile";
-import type { PlayerType, TileType } from "../types";
+import type { TileType } from "../types";
 
-export default function Board({tiles, setTiles, turn, setPlayed}:
+export default function Board({tiles, setTiles, turn, movePhase}:
     {
         tiles: TileType[],
-        turn: PlayerType,
+        turn: number,
         setTiles: React.Dispatch<React.SetStateAction<TileType[]>>,
-        setPlayed: React.Dispatch<React.SetStateAction<boolean>>
+        movePhase: ()=> void
     } 
 ) {
     return (
         <div className="board">
         {
             tiles.map((tile,index) => 
-                <Tile key={index} tile={tile} turn={turn} setTiles={setTiles} setPlayed={setPlayed}/>)
+                <Tile key={index} tile={tile} turn={turn} setTiles={setTiles} movePhase={movePhase}/>)
         }
         </div>
     )

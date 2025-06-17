@@ -1,28 +1,28 @@
-import { type TileType, type PlayerType, imageNames } from "../types";
+import { imageNames, type TileType, type GamePhase } from "../types";
 import { staticAsset } from "../libs";
 
-export function Tile({setTiles, tile, turn, setPlayed}:
+export function Tile({setTiles, tile, turn, movePhase}:
     {
         tile: TileType,
-        turn: PlayerType,
+        turn: number,
         setTiles: React.Dispatch<React.SetStateAction<TileType[]>>,
-        setPlayed: React.Dispatch<React.SetStateAction<boolean>>,
+        movePhase: ()=> void
     }
 ) {
     const handleClick = (_event: React.MouseEvent<HTMLButtonElement>)=> {
-        if(!tile?.state) {
+        if(tile.state < 0) {
             console.log('Tile is clicked. ', tile, turn);
             setTiles(prev => prev.map(k => k === tile ? {...k, state: turn}: k));
-            setPlayed(true);
+            movePhase();
         }
     }
     return (
         <button 
-            className={"tile-button" + `${tile.state ? ' taken': ''}` + `${turn ? (turn.image === imageNames[0] ? ' turn-1': ' turn-2'): ''}`}
+            className={"tile-button" + `${tile.state >= 0 ? ' taken': ''}` + `${turn == 0 ? ' turn-1': (turn == 1 ? ' turn-2': '')}`}
             onClick={handleClick}>
             {
-            tile.state !== undefined ? 
-                <img src={staticAsset(tile.state.image)} alt={tile.state.image === imageNames[0] ? 'x': 'o'} /> :
+            tile.state >=0 ? 
+                <img src={staticAsset(imageNames[tile.state])} alt={tile.state === 0 ? 'x': 'o'} /> :
                 null
             }
         </button>

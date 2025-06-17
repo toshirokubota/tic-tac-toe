@@ -7,6 +7,7 @@ export default function StatusBar({players}:
     const olabel = players[1].you ? (players[0].cpu ? 'YOU': 'P1'): (players[1].cpu ? 'CPU': 'P2');
     
     return (
+
         <div className="status-bar flex justify-around items-center gap-4">
             <div className='x-status'>
                 <p>X ({xlabel}) </p>
