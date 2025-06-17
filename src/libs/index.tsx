@@ -58,7 +58,7 @@ export function nextIntelligentMove(tiles: TileType[], me: PlayerType, opponent:
 
 export const customStringify = (players: PlayerType[], tiles: TileType[], 
     turn: PlayerType, winner: PlayerType| null, 
-    initialized: boolean, ended: boolean, numPlays: number, reset: boolean) => {
+    initialized: boolean, ended: boolean, reset: boolean) => {
     const tilesNew = [];
     for(const tile of tiles) {
         if(tile.state?.image === players[0].image) {
@@ -72,7 +72,7 @@ export const customStringify = (players: PlayerType[], tiles: TileType[],
     const turnNew = turn.image == players[0].image ? 0 : 1;
     const winnerNew = winner ? (winner.image == players[0].image ? 0: 1): -1;
     const obj = {players: players, tiles: tilesNew, turn: turnNew, winner: winnerNew, 
-        initialized: initialized, ended: ended, numPlays: numPlays, reset: reset};
+        initialized: initialized, ended: ended, reset: reset};
     console.log('customStringify()', tiles, tilesNew);
     return JSON.stringify(obj);
 }
@@ -92,5 +92,5 @@ export const customParse = (str: string) => {
     }
     return {players, tiles, turn, winner, 
         initialized: parsed.initialized, ended: parsed.ended, 
-        numPlays: parsed.numPlays, reset: parsed.reset};
+        reset: parsed.reset};
 }
