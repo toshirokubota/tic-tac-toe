@@ -6,6 +6,11 @@ body {
   display: grid;
   justify-content: center;
 }
+@media only screen and (min-width: 640px) {
+  body {
+    align-items: center;
+  }
+}
 
 #root {
   max-width: 1280px;
@@ -18,7 +23,7 @@ header {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: 1fr;
-  width: calc(3 * clamp(5rem, 13.6vw + 45px, 9rem) + 40px);
+  width: calc(3 * clamp(5rem, 13.6vw + 45px, 9rem) + 4rem);
 }
 header .player-icons {
   justify-self: flex-start;
@@ -35,6 +40,9 @@ header .turn {
   box-shadow: inset 0px -3px 0px black;
   padding: 0.5rem;
   width: clamp(5rem, 13.6vw + 45px, 9rem);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 header svg {
   display: inline;
@@ -64,7 +72,7 @@ header button img {
   grid-auto-rows: 1fr;
   gap: 1rem;
   padding: 1rem;
-  width: calc(3 * clamp(5rem, 13.6vw + 45px, 9rem) + 40px);
+  width: calc(3 * clamp(5rem, 13.6vw + 45px, 9rem) + 4rem);
 }
 
 .tile-button {
@@ -95,7 +103,7 @@ header button img {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: 1fr;
   gap: 1rem;
-  width: calc(3 * clamp(5rem, 13.6vw + 45px, 9rem) + 40px);
+  width: calc(3 * clamp(5rem, 13.6vw + 45px, 9rem) + 4rem);
 }
 .status-bar .x-status, .status-bar .o-status, .status-bar .tie-status {
   width: clamp(5rem, 13.6vw + 45px, 9rem);
@@ -155,7 +163,7 @@ header button img {
   background-color: var(--color-dark-orange);
   color: var(--color-dark-navy);
   width: calc(100% - 4rem);
-  margin: 1rem 1rem;
+  margin: 1rem 2rem;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
 }
@@ -163,7 +171,7 @@ header button img {
   background-color: var(--color-bluish-green);
   color: var(--color-dark-navy);
   width: calc(100% - 4rem);
-  margin: 1rem 1rem;
+  margin: 1rem 2rem;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
 }
@@ -179,7 +187,7 @@ header button img {
 
 .modal-fg {
   position: absolute;
-  top: 25rem;
+  top: 10rem;
   left: 0;
   width: 100%;
   background-color: var(--color-dark-navy);
@@ -187,6 +195,11 @@ header button img {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+@media only screen and (min-width: 640px) {
+  .modal-fg {
+    top: 50%;
+  }
 }
 .modal-fg > * + * {
   margin-top: 1rem;

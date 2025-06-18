@@ -1,4 +1,4 @@
-import { imageNames, type TileType, type GamePhase } from "../types";
+import { imageNames, type TileType } from "../types";
 import { staticAsset } from "../libs";
 
 export function Tile({setTiles, tile, turn, movePhase}:

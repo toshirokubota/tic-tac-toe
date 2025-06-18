@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 import Board from './components/Board'
 import Header from './components/Header'
-import { type TileType, type PlayerType, imageNames, type GamePhase } from './types';
+import { type TileType, type PlayerType, type GamePhase } from './types';
 import { checkForWinBy, customParse, customStringify, nextIntelligentMove } from './libs';
 import StatusBar from './components/StatusBar';
 import InitialSetup from './components/InitialSetup';
@@ -58,9 +58,6 @@ function App() {
         console.log('Play continue...');
         switchTurn();
       }
-      console.log('store the current state. Tiles = ', tiles);
-      localStorage.setItem(gameStorageKey, 
-          customStringify(players, tiles, turn, winner, phase));
     } else if(phase==='Thinking1' || phase === 'Thinking2') {
       console.log('Turn change. Possible CPU play:', turn, phase);
       if(players[turn].cpu) {
@@ -73,6 +70,8 @@ function App() {
           movePhase();
         }
       }
+    }
+    if(phase != 'Idle') {
       console.log('store the current state. Tiles = ', tiles);
       localStorage.setItem(gameStorageKey, 
           customStringify(players, tiles, turn, winner, phase));

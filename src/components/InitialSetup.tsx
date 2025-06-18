@@ -30,10 +30,7 @@ export default function InitialSetup({setPlayers, start}:
 
     return (
         <div className="flex flex-col items-center w-full my-16">
-            <div className="flex justify-center">
-                <img src={staticAsset('/images/icon-x.svg')} alt='x-icon' className="w-8"/>
-                <img src={staticAsset('/images/icon-o.svg')} alt='o-icon' className="w-8"/>
-             </div>
+             <img src={staticAsset('/images/logo.svg')}  alt='logo'/>
              <form className='start-form'>
                 <div className='flex flex-col justify-center my-8'>
                     <fieldset className="my-4">
