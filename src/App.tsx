@@ -36,8 +36,8 @@ function App() {
       } else {
         setPhase('Setup');
       }
-    } else if(phase === 'Restart'){
-      restartGame();
+    // } else if(phase === 'Restart'){
+    //   restartGame();
     } else if(phase === 'Played1' || phase === 'Played2') {
       if(checkForWinBy(tiles, 0)) {
         console.log('First Win!!!');
