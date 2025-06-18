@@ -80,8 +80,8 @@ function App() {
 
   }, [phase]);
   
-  const restartGame = () => {
-    console.log('restartGame: ', players);
+  const startGame = () => {
+    console.log('startGame: ', players);
     setTiles(new Array(9).fill(null).map((_a,i) => ({state: -1, id: i})));
     setTurn(0);
     setWinner(-1);
@@ -111,15 +111,15 @@ function App() {
         {
           phase === 'Over' &&
           <EndGame players={players} winner={winner} 
-                  quit={()=>{setPhase('Setup')}} restart={()=>setPhase('Restart')}/>
+                  quit={()=>{setPhase('Setup')}} restart={()=>startGame()}/>
         }
         {
           phase === 'Restart' && 
-          <ResetGame cancel={()=>setPhase(turn == 0 ? 'Thinking1': 'Thinking2')} restart={()=>setPhase('Restart')} />
+          <ResetGame cancel={()=>setPhase(turn == 0 ? 'Thinking1': 'Thinking2')} restart={()=>startGame()} />
         }
         {
           phase === 'Setup' && 
-          <InitialSetup setPlayers={setPlayers} start={()=>setPhase('Restart')}/>
+          <InitialSetup setPlayers={setPlayers} start={()=>startGame()}/>
         }
         {
           phase !== 'Setup' &&
